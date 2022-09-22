@@ -1,0 +1,57 @@
+body {
+    background-color: palegreen;
+    /* font-family: Arial, Helvetica, sans-serif; */
+    font-family: "Lucida Console", "Courier New", monospace;
+    font-size: larger;
+}
+
+h1 {
+    height: 100px;
+    line-height: 100px;
+    text-align: center;
+    border: 5px solid darkgreen;
+}
+
+.outerDiv {
+    border: 5px solid darkgreen;
+    height: 500px;
+}
+
+table, td, th {
+    border: 2px solid darkgreen;
+    border-collapse: separate;
+    margin: auto;
+    padding: 20px;
+}
+
+table {
+    border: none;
+}
+
+.leftDiv, .rightDiv {
+    float: left;
+    height: 500px;
+    overflow: auto;
+    text-align: center;  
+}
+
+.middleDiv {
+    float: left; 
+    /* border: 1px solid black; */
+    overflow: auto;
+}
+
+.trade {
+    /* border: 1px solid black; */
+    /* display: flex; */
+    align-items: center;
+    justify-content: center;
+    height: 500px;
+}
+
+fieldset {
+    text-align: center;
+    border: 5px solid darkgreen;
+    padding: 50px;
+    line-height: 50px;
+}

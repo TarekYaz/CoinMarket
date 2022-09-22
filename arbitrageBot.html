@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="arbitrageBot.css">
+    <title>Document</title>
+</head>
+<body>
+    <h1>
+        Arbitrage tool
+    </h1>
+    <div class="outerDiv">
+        <div class="leftDiv">
+            <table>
+                <thead>
+                    <th>Coin</th>
+                    <th>Price</th>
+                </thead>
+                <tbody id="table">
+                </tbody>
+            </table>
+        </div>
+        <div class="middleDiv">
+            <p>USD balance</p>
+            <p id="walletTotal">0</p>
+            <input type="submit" value="add" onclick="addFunds()">
+            <div class="trade">
+                <fieldset>
+                    <legend>TRADE</legend>
+                    <label for="buy">BUY:</label>
+                    <select name="buy" id="buy" onchange="getBuyPrice()">
+                    </select>
+                    <input type="number" id="buyPrice" step=0.01>
+                    <input type="number" id="buyAmount" placeholder="Enter amount" step=0.1 min="0">
+                    <br>
+                    <input type="submit" value="Buy" onclick="buyCoin(); displayCryptoWallet();">
+                    <br>
+                    <label for="sell">SELL:</label>
+                    <select name="sell" id="sell" onchange="getSellPrice()">
+                    </select>
+                    <input type="number" id="sellPrice" step=0.01>
+                    <input type="number" id="sellAmount" placeholder="Enter amount" step=0.1 min="0">
+                    <br>
+                    <input type="submit" value="Sell" onclick="sellCoin(); displayCryptoWallet();">
+                    <br>
+                </fieldset>       
+            </div>
+        </div>
+        <div class="rightDiv">
+            <table>
+                <tbody id="coinWallet">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script src="./arbitrageBot.js"></script>
+</body>
+</html>
