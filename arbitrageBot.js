@@ -18,31 +18,30 @@ let request = fetch('https://pro-api.coinmarketcap.com/v1/cryptocurrency/listing
 let cmcData;
 let dataArray;
 let cWallet;
-
 const coinMap = new Map();
 
 request.then(async (res) => {
     cmcData = await res.json();
     dataArray = cmcData.data;
-    cWallet = getLocalCryptoWallet();
+    cWallet = getLocalCryptoWallet().join(',');
 
     dataArray.forEach( x => {
         let name = x.name;
         let price = x.quote.USD.price;
-
+        //populate Map
         coinMap.set(name, price);
-
+        //populate table of coins and current prices
         generateRow(name, price);
+        //populate buy options with all coins
         generateOption(name, "buy");
-        
+        //populate the sell options only for coins owned by user
         if (cWallet.includes(name)){
             generateOption(name, "sell");
         }
     })
-
+    //populate fiat wallet value with locally stored data
     document.getElementById("walletTotal").innerHTML = getWalletTotal();
 
-    console.log(getLocalCryptoWallet("Bitcoin"));
     displayCryptoWallet();
     getBuyPrice();
     getSellPrice();
@@ -102,7 +101,6 @@ function buyCoin() {
     let coin = document.getElementById("buy").value;
     let price = document.getElementById("buyPrice").value;
     let quantity = document.getElementById("buyAmount").value;
-    let cWallet = getLocalCryptoWallet();
 
     if(quantity){
         setWalletTotal(getWalletTotal() - (price * quantity));
@@ -130,8 +128,7 @@ function sellCoin() {
 }
 
 function displayCryptoWallet() {
-    let cWallet = getLocalCryptoWallet();
-    let cWalletArr = cWallet.split(",");
+    let cWalletArr = getLocalCryptoWallet();
 
     document.getElementById("coinWallet").innerHTML = "";
 
@@ -158,11 +155,15 @@ function getLocalCryptoWallet(myCoin) {
     let cWallet = window.localStorage.getItem("cryptoWallet");
 
     if (!cWallet) {
+        //initialises a "cryptoWallet" in local storage if non existent
         window.localStorage.setItem("cryptoWallet", "coin quantity");
     }
+
+    let cWalletArr = cWallet.split(",");
+
     
     if(myCoin) {
-        let cWalletArr = cWallet.split(",");
+        
         let coinInWallet = cWalletArr.find(x => {
             return myCoin == x.slice(0, x.indexOf(" "));
         });
@@ -171,42 +172,47 @@ function getLocalCryptoWallet(myCoin) {
         return quantity;
     }
 
-    return window.localStorage.getItem("cryptoWallet");
+    return cWalletArr;
 }
 
 function setLocalCryptoWallet(coin, quantity, tradeType) {
-    let cWallet = getLocalCryptoWallet();
-    let cWalletArr = cWallet.split(",");
-    let newEntry;
-
-    if (cWallet.includes(coin)) {
-        let entry = cWalletArr.find(x => {
+    let cWalletArr = getLocalCryptoWallet();
+    let oldEntry;
+    let oldAmount;
+    try {
+        oldEntry = cWalletArr.find(x => {
             return coin == x.slice(0, x.indexOf(" ")); 
         });
-        let oldAmount = entry.slice(entry.indexOf(" "));
-        let newAmount;
+        oldAmount = oldEntry.slice(oldEntry.indexOf(" "));
+    } catch(err) {
+        console.log("Adding new coin to cryptoWallet now.");
+    }
+    let newEntry;
+    let newAmount;
 
-        if (tradeType == "buy"){
-            newAmount = Number(oldAmount) + Number(quantity);
-        } else if (tradeType == "sell"){
-            newAmount = Number(oldAmount) - Number(quantity);
-        }
-        
-        newEntry = coin + " " + newAmount;
-
-        cWalletArr[cWalletArr.indexOf(entry)] = newEntry;
+    if (tradeType == "sell") {
+        //we are selling a coin
+        newAmount = Number(oldAmount) - Number(quantity);
+    } else if (cWalletArr.join(',').includes(coin)) {
+        //we are buying more of a coin we already own
+        newAmount = Number(oldAmount) + Number(quantity)
     } else {
-        newEntry = coin + " " + quantity;
+        //we are buying a coin we don't currently have
+        newAmount = quantity
+        newEntry = coin + " " + newAmount;
         cWalletArr.push(newEntry);
+
+        return window.localStorage.setItem("cryptoWallet", cWalletArr.join(','));
     }
 
-    cWallet = cWalletArr.join(",");
-    window.localStorage.setItem("cryptoWallet", cWallet);
+    newEntry = coin + " " + newAmount;
+    cWalletArr[cWalletArr.indexOf(oldEntry)] = newEntry;
+    
+    return window.localStorage.setItem("cryptoWallet", cWalletArr.join(','));
 }
 
 function removeCoin(coin) {
-    let cWallet = getLocalCryptoWallet();
-    let cWalletArr = cWallet.split(",");
+    let cWalletArr = getLocalCryptoWallet();
     let entryToRemove = cWalletArr.find(x => {
         return coin == x.slice(0, x.indexOf(" "));
     })
