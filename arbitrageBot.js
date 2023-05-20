@@ -1,11 +1,15 @@
-// let request = fetch('https://sandbox-api.coinmarketcap.com/v1/cryptocurrency/listings/latest', {
-//     method : 'GET',
-//     headers : {
-//         'X-CMC_PRO_API_KEY': 'b54bcf4d-1bca-4e8e-9a24-22ff2c3d462c',
-//         'Accept': 'application/json',
-//         'Accept-Encoding': 'deflate, gzip',
-//     }
-// });
+/*-------------------SANDBOX REQUEST FOR TEST PURPOSES--------------------
+let request = fetch('https://sandbox-api.coinmarketcap.com/v1/cryptocurrency/listings/latest', {
+    method : 'GET',
+    headers : {
+        'X-CMC_PRO_API_KEY': 'b54bcf4d-1bca-4e8e-9a24-22ff2c3d462c',
+        'Accept': 'application/json',
+        'Accept-Encoding': 'deflate, gzip',
+    }
+});
+*/
+
+//-------------------API REQUEST - ACCOUNT PLAN LIMITS TO 10,000 A MONTH--------------------
 let request = fetch('https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest', {
     method : 'GET',
     headers : {
@@ -21,21 +25,23 @@ let cWallet;
 const coinMap = new Map();
 
 request.then(async (res) => {
-    cmcData = await res.json();
-    dataArray = cmcData.data;
-    cWallet = getLocalCryptoWallet().join(',');
+    
+    cWallet = getLocalCryptoWallet().join(','); //the users wallet but as a string - for populating the sell options (line: 43)
+    cmcData = await res.json(); //storing all the JSON data in a variable
+    dataArray = cmcData.data;   //storing the coin names and info in an array
+
 
     dataArray.forEach( x => {
         let name = x.name;
         let price = x.quote.USD.price;
-        //populate Map
-        coinMap.set(name, price);
-        //populate table of coins and current prices
-        generateRow(name, price);
-        //populate buy options with all coins
-        generateOption(name, "buy");
-        //populate the sell options only for coins owned by user
-        if (cWallet.includes(name)){
+        
+        coinMap.set(name, price); //populate Map
+        
+        generateRow(name, price); //populate table of coins and current prices
+        
+        generateOption(name, "buy"); //populate buy options with all coins
+        
+        if (cWallet.includes(name)){ //populate the sell options only for coins owned by user
             generateOption(name, "sell");
         }
     })
@@ -179,6 +185,7 @@ function setLocalCryptoWallet(coin, quantity, tradeType) {
     let cWalletArr = getLocalCryptoWallet();
     let oldEntry;
     let oldAmount;
+
     try {
         oldEntry = cWalletArr.find(x => {
             return coin == x.slice(0, x.indexOf(" ")); 
@@ -187,6 +194,7 @@ function setLocalCryptoWallet(coin, quantity, tradeType) {
     } catch(err) {
         console.log("Adding new coin to cryptoWallet now.");
     }
+    
     let newEntry;
     let newAmount;
 
